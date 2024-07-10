@@ -20,10 +20,12 @@ logger = logging.getLogger(__name__)
 
 
 def my_job():
-    mailings = Mailing.objects.all().filter(is_active=False)
-    # once_day = mailing.periodicity('once_day')
-    # once_week = mailing.periodicity('once_week')
-    # once_month = mailing.periodicity('once_month')
+    """
+    Функция для отправки рассылок клиентам.
+    Проверяет все активные рассылки и отправляет их, если они готовы к отправке.
+    """
+    mailings = Mailing.objects.all().filter(is_active=False).filter(status='created')
+
     try:
         for mailing in mailings:
             if mailing.start_mailing >= timezone.now() or mailing.next_mailing >= timezone.now():
@@ -45,27 +47,32 @@ def my_job():
         print("Ошибка при отправке письма: {}".format(e))
 
 
-def my_job2():
-    day = timedelta(days=1)
-    week = timedelta(days=7)
-    month = timedelta(days=31)
+def periods_mailing():
     mailings = Mailing.objects.all().filter(is_active=True)
-    # once_day = mailing.periodicity('once_day')
-    # once_week = mailing.periodicity('once_week')
-    # once_month = mailing.periodicity('once_month')
+    time = None
+
     for mailing in mailings:
-        if mailing.start_mailing >= timezone.now() or mailing.next_mailing >= timezone.now():
+        if mailing.periodicity == 'once_day':
+            time = mailing.next_mailing
+        elif mailing.periodicity == 'once_week':
+            time = mailing.next_mailing
+        elif mailing.periodicity == 'once_month':
+            time = mailing.next_mailing
+
+        elif mailing.next_mailing >= timezone.now():
             send_mail(
                 subject=mailing.message.title,
                 message=mailing.message.message,
                 from_email=EMAIL_HOST_USER,
                 recipient_list=[client.email for client in mailing.clients.all()],
             )
-
-            mailing.save()
-
+        elif mailing.end_mailing >= timezone.now():
+            mailing.is_active = False
+            mailing.periodicity = 'finished'
             log = MailingLog(last_attempt=timezone.now(), status='successfully', server_response=None)
             log.save()
+
+    return time
 
 
 # The `close_old_connections` decorator ensures that database connections, that have become
@@ -101,6 +108,17 @@ class Command(BaseCommand):
         logger.info("Added job 'my_job'.")
 
         scheduler.add_job(
+            periods_mailing(),
+            trigger=CronTrigger(start_date=periods_mailing()),
+            id="periods_mailing",
+            max_instances=1,
+            replace_existing=True,
+        )
+        logger.info(
+            "..."
+        )
+
+        scheduler.add_job(
             delete_old_job_executions,
             trigger=CronTrigger(
                 day_of_week="mon", hour="00", minute="00"
@@ -125,5 +143,6 @@ class Command(BaseCommand):
 # Функция старта периодических задач
 def start():
     scheduler = BackgroundScheduler()
-    scheduler.add_job(my_job(), 'interval', seconds=120)
+    scheduler.add_job(my_job, 'interval', seconds=120)
+    scheduler.add_job(periods_mailing, 'interval', seconds=120)
     scheduler.start()
