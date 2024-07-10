@@ -56,7 +56,7 @@ class Mailing(models.Model):
                                                             ('once_month', 'раз в месяц')],
                                    verbose_name='Периодичность')
     status = models.CharField(max_length=100, choices=list_status, verbose_name='Статус')
-    is_active = models.BooleanField(default=True, verbose_name='активна')
+    is_active = models.BooleanField(default=False, verbose_name='активна')
     clients = models.ManyToManyField(Clients, verbose_name='Клиенты')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='сообщение')
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Пользователь', **NULLABLE)
