@@ -1,0 +1,54 @@
+{% extends 'mailings/base.html' %}
+{% load my_tags %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h3>Блог</h3>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-secondary" href="{% url 'blog:create_blog' %}">Создать запись</a>
+    </div>
+</div>
+<div class="row text-center">
+    <div class="col-4">
+        <div class="card mb-4 box-shadow">
+            {% for object in object_list %}
+            {% if object.is_published %}
+            <img class="rounded form-control"
+                 style='width: 300px;height: 300px;overflow: hidden;margin: 20px; object-fit: contain'
+                 alt="Image"
+                 onerror="this.src='https://img.razrisyika.ru/img/173/1200/689342-blestyaschaya-raskraska-novosti-stranicy.jpg'"
+                 src="{% mediapath object.image %}"/>
+            <div class="card-body">
+                <h3 class="card-title pricing-card-title">{{ object.title }}</h3>
+                <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                    <p>{{ object.text|truncatechars:100 }}</p>
+                </ul>
+                <a href="{% url 'blog:detail_blog' object.pk %}" type="button"
+                   class="btn btn-primary btn-block btn-outline-dark mt-auto">Подробнее</a>
+            </div>
+            {% else %}
+            {% if perms.update_blog or request.user.is_superuser %}
+            <img class="rounded form-control"
+                 style='width: 300px;height: 300px;overflow: hidden;margin: 20px; object-fit: contain'
+                 alt="Image"
+                 onerror="this.src='https://img.razrisyika.ru/img/173/1200/689342-blestyaschaya-raskraska-novosti-stranicy.jpg'"
+                 src="{% mediapath object.image %}"/>
+            <div class="card-body">
+                <h3 class="card-title pricing-card-title">{{ object.title }}</h3>
+                <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                    <p>{{ object.text|truncatechars:100 }}</p>
+                </ul>
+                <a href="{% url 'blog:detail_blog' object.pk %}" type="button"
+                   class="btn btn-primary btn-block btn-outline-dark mt-auto">Подробнее</a>
+                <a href="{% url 'blog:update_blog' object.pk %}" type="button"
+                   class="btn btn-primary btn-block btn-warning mt-1">Опубликовать</a>
+
+            </div>
+            {% endif %}
+            {% endif %}
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

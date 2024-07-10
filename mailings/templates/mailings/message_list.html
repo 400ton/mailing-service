@@ -1,0 +1,62 @@
+{% extends 'mailings/base.html' %}
+{% load my_tags %}
+{% block content %}
+
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h3>Сообщения</h3>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-secondary" href="{% url 'mailing:create_message' %}">Создать
+            сообщение</a>
+    </div>
+</div>
+
+<div class="table-responsive small">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Тема сообщения</th>
+            <th>Сообщение</th>
+            {% if request.user.is_superuser or request.user == object.owner %}
+            <th>Создал</th>
+            {% endif %}
+            <th>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    Возможности
+                </div>
+            </th>
+        </tr>
+        </thead>
+
+        {% for object in object_list %}
+        <tr>
+            <td>{{ object.title|truncatechars:20 }}</td>
+            <td>{{ object.message|truncatechars:25 }}</td>
+            {% if request.user.is_superuser %}
+            <td>{{ object.owner }}</td>
+            {% endif %}
+
+            {% if request.user|has_group:2 or request.user == object.owner or request.user.is_superuser %}
+            <td>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a type="button" class="btn" href="{% url 'mailing:detail_message' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                        Просмотреть
+                    </a>
+                    <a type="button" class="btn" href="{% url 'mailing:update_message' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                        Обновить
+                    </a>
+                    <a type="button" class="btn" href="{% url 'mailing:delete_message' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                        Удалить
+                    </a>
+                </div>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends 'mailings/base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h3>Рассылки</h3>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <a type="button" class="btn btn-sm btn-secondary mx-1" href="{% url 'mailing:list_log' %}">Логи</a>
+        <a type="button" class="btn btn-sm btn-secondary" href="{% url 'mailing:creating_mailing' %}">Добавить
+            рассылку</a>
+    </div>
+</div>
+
+<div class="table-responsive small">
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Начало рассылки</th>
+            <th>Следующая рассылка</th>
+            <th>Окончание рассылки</th>
+            <th>Периодичность</th>
+            <th>Тема сообщения</th>
+            <th>Статус</th>
+            {% if user.is_superuser %}
+            <th>Создал</th>
+            {% endif %}
+            <th>Возможности</th>
+        </tr>
+        </thead>
+
+        {% for object in object_list %}
+        <tr>
+            <td>{{ object.start_mailing|date:"d M Y" }}</td>
+            <td>{{ object.next_mailing|date:"d M Y" }}</td>
+            <td>{{ object.end_mailing|date:"d M Y" }}</td>
+
+
+            {% if object.periodicity == 'once_day' %}
+            <td>Ежедневно в {{ object.start_mailing|time:"H:i" }}</td>
+            {% elif object.periodicity == "once_week" %}
+            <td>Еженедельно {{ object.start_mailing|date:"d M Y" }} at {{ object.start_mailing|time:"H:i" }}</td>
+            {% elif object.periodic == 'once_month' %}
+            <td>Ежемесячно {{ object.start_mailing}} day at {{ object.start_mailing|time:"H:i" }}</td>
+            {% endif %}
+
+            <td>{{ object.message.title }}</td>
+
+            {% if object.is_active %}
+            {% if object.status == 'created' %}
+            <td>Создана</td>
+            {% elif object.status == 'executing' %}
+            <td>Запущена</td>
+            {% elif object.status == 'finished' %}
+            <td>Окончена</td>
+            {% elif object.status == 'error' %}
+            <td>Ошибка сервера</td>
+            {% endif %}
+            {% endif %}
+
+            <td>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a type="button" class="btn" href="{% url 'mailing:toggle_active' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                        {% if object.status != 'finished' and 'error' %}
+                        {% if object.is_active %}
+                        Отключить
+                        {% else %}
+                        Включить
+                        {% endif %}
+                        {% endif %}
+                    </a>
+
+                    <a type="button" class="btn" href="#"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+
+                        {% if object.status != 'finished' and 'error' %}
+                        {% if request.user == object.owner or request.user.is_superuser %}
+                        {% if object.status == "created" %}
+                        Запустить
+                        {% else %}
+                        Остановить
+
+                        {% endif %}
+                    </a>
+                    <a type="button" class="btn"
+                       href="{% url 'mailing:update_mailing' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                        Обновить
+                    </a>
+                    <a type="button" class="btn"
+                       href="{% url 'mailing:delete_mailing' object.pk %}"
+                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
+                       Удалить
+                    </a>
+                    {% endif %}
+                    {% endif %}
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
