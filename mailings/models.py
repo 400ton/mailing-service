@@ -55,11 +55,18 @@ class Mailing(models.Model):
     periodicity = models.CharField(max_length=100, choices=[('once_day', 'раз в день'), ('once_week', 'раз в неделю'),
                                                             ('once_month', 'раз в месяц')],
                                    verbose_name='Периодичность')
-    status = models.CharField(max_length=100, choices=list_status, verbose_name='Статус')
+    status = models.CharField(max_length=100, choices=list_status, verbose_name='Статус', **NULLABLE)
     is_active = models.BooleanField(default=False, verbose_name='активна')
     clients = models.ManyToManyField(Clients, verbose_name='Клиенты')
     message = models.ForeignKey(Message, on_delete=models.CASCADE, verbose_name='сообщение')
     owner = models.ForeignKey(User, on_delete=models.SET_NULL, verbose_name='Пользователь', **NULLABLE)
+
+    @property
+    def recipients(self):
+        """
+        Возвращает список email адресов клиентов для рассылки
+        """
+        return [client.email for client in self.clients.all()]
 
     def __str__(self):
         return f'{self.owner} {self.start_mailing} {self.periodicity} {self.status}'

@@ -250,13 +250,8 @@ class MailingLogListView(LoginRequiredMixin, ListView):
 class MailingLogDetailView(LoginRequiredMixin, DetailView):
     model = MailingLog
 
-    def get_context_data(self, **kwargs):
-        context_data = super().get_context_data(**kwargs)
-        context_data['title'] = f'Детали лога'
-        return context_data
-
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.object.mailing.owner != self.request.user and not self.request.user.is_superuser:
+        if self.request.user and not self.request.user.is_superuser:
             raise Http404
         return self.object

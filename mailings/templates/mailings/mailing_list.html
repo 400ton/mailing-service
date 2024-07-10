@@ -42,18 +42,18 @@
             <td>Ежемесячно {{ object.start_mailing}} day at {{ object.start_mailing|time:"H:i" }}</td>
             {% endif %}
 
-            <td>{{ object.message.title }}</td>
+            <td>{{ object.message.title|truncatechars:20 }}</td>
 
             {% if object.is_active %}
-            {% if object.status == 'created' %}
-            <td>Создана</td>
-            {% elif object.status == 'executing' %}
-            <td>Запущена</td>
-            {% elif object.status == 'finished' %}
-            <td>Окончена</td>
-            {% elif object.status == 'error' %}
-            <td>Ошибка сервера</td>
-            {% endif %}
+                {% if object.status == 'created' %}
+                <td>Создана</td>
+                {% elif object.status == 'executing' %}
+                <td>Запущена</td>
+                {% elif object.status == 'finished' %}
+                <td>Окончена</td>
+                {% elif object.status == 'error' %}
+                <td>Ошибка сервера</td>
+                {% endif %}
             {% endif %}
 
             <td>
@@ -69,18 +69,6 @@
                         {% endif %}
                     </a>
 
-                    <a type="button" class="btn" href="#"
-                       style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
-
-                        {% if object.status != 'finished' and 'error' %}
-                        {% if request.user == object.owner or request.user.is_superuser %}
-                        {% if object.status == "created" %}
-                        Запустить
-                        {% else %}
-                        Остановить
-
-                        {% endif %}
-                    </a>
                     <a type="button" class="btn"
                        href="{% url 'mailing:update_mailing' object.pk %}"
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
@@ -91,8 +79,6 @@
                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .75rem;">
                        Удалить
                     </a>
-                    {% endif %}
-                    {% endif %}
                 </div>
             </td>
         </tr>
