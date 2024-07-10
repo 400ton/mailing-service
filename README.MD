@@ -6,7 +6,8 @@ ___
 ![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Redis](https://img.shields.io/badge/redis-%23DD0031.svg?style=for-the-badge&logo=redis&logoColor=white)
-	![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
+![Git](https://img.shields.io/badge/git-%23F05033.svg?style=for-the-badge&logo=git&logoColor=white)
+
 ## Перед запуском программы необходимо:
 
 > Настроить почту yandex.ru, [по инструкции](https://clck.ru/3BLEsg)
@@ -44,10 +45,14 @@ pip install -r requirements.txt
 python manage.py runserver
 ```
 
-- Для запуска скрипта рассылки выполните команду
+- Для регистрации админа выполните команду
 
 ```ini
-python manage.py runapscheduler
+python manage.py csu
 ```
-
+- Для входа в админ панель испльзуйте емейл и пароль:
+```ini
+admin@localhost
+12345
+```
 - Для остановки локального сервера используйте Сtrl+С в терминале
